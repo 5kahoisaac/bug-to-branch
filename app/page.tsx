@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { TaskBoard } from "@/components/task-board";
 
 const WORKFLOW_STEPS = [
   {
@@ -92,8 +91,6 @@ export default function Home() {
           </p>
         </CardContent>
       </Card>
-
-      <TaskBoard />
     </main>
   );
 }
