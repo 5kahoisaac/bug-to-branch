@@ -51,34 +51,36 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="relative z-10 -mt-6 ml-8 rounded-xl border bg-card p-5">
+      <div className="mt-6 rounded-xl border bg-card p-5">
         <p className="font-medium">Heads up</p>
         <p className="mt-1 text-sm text-muted-foreground">Weekly digest goes out on Friday.</p>
       </div>
 
       <h2 className="mt-10 text-xl font-semibold">Recent reports</h2>
-      <table className="mt-4 w-[1400px] text-left text-sm">
-        <thead className="text-muted-foreground">
-          <tr>
-            <th className="p-3">ID</th>
-            <th className="p-3">Title</th>
-            <th className="p-3">Reporter</th>
-            <th className="p-3">Status</th>
-            <th className="p-3">Last updated</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y border-t">
-          {ROWS.map((row) => (
-            <tr key={row.id}>
-              <td className="p-3 font-mono">#{row.id}</td>
-              <td className="p-3">{row.title}</td>
-              <td className="p-3">{row.reporter}</td>
-              <td className="p-3">{row.status}</td>
-              <td className="p-3">{row.updated}</td>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="text-muted-foreground">
+            <tr>
+              <th className="p-3">ID</th>
+              <th className="p-3">Title</th>
+              <th className="p-3">Reporter</th>
+              <th className="p-3">Status</th>
+              <th className="p-3">Last updated</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y border-t">
+            {ROWS.map((row) => (
+              <tr key={row.id}>
+                <td className="p-3 font-mono">#{row.id}</td>
+                <td className="p-3">{row.title}</td>
+                <td className="p-3">{row.reporter}</td>
+                <td className="p-3">{row.status}</td>
+                <td className="p-3">{row.updated}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
