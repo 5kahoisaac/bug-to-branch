@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { ReportFeedbackButton } from "@/components/report-feedback-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -5,41 +7,59 @@ import { Button } from "@/components/ui/button";
 const REPO_URL = "https://github.com/5kahoisaac/bug-to-branch";
 const ISSUES_URL = `${REPO_URL}/issues`;
 
-type Status = "Live" | "Local only" | "Not built";
+type Status = "Live" | "Local";
 
 const TEST_AREAS: { title: string; body: string; status: Status }[] = [
   {
     title: "BugDrop widget",
-    body: "The hosted widget loads on this page and collects a title, description, category, and optional screenshot.",
+    body: "The hosted widget loads on every page and collects a category, title, description, and optional screenshot.",
     status: "Live",
   },
   {
     title: "Report → GitHub issue",
-    body: "Each submission should open a public issue in this repo with browser context attached.",
+    body: "Each report opens a public issue in this repo, labeled bugdrop plus bug, enhancement, or question, with browser info attached.",
     status: "Live",
   },
   {
-    title: "Local issue check",
-    body: "A script run on a dev machine reads the issues, filters by label, and picks what's ready to work on.",
-    status: "Local only",
-  },
-  {
-    title: "Issue → draft PR",
-    body: "Turning an approved issue into a draft pull request. Only designed so far, see docs/automation-design.md.",
-    status: "Not built",
+    title: "Triage agent",
+    body: "A Claude Code skill (/triage-bugdrop) reads new issues and handles them by type. It runs on a maintainer’s machine about every 30 minutes, only while that session is open.",
+    status: "Local",
   },
 ];
 
 const STATUS_STYLES: Record<Status, string> = {
   Live: "bg-emerald-400",
-  "Local only": "bg-amber-400",
-  "Not built": "bg-zinc-500",
+  Local: "bg-amber-400",
 };
 
+const REPORT_TYPES = [
+  {
+    category: "Bug",
+    label: "bug",
+    body: "The agent finds the root cause, fixes it in a draft pull request, and links the PR on your issue. A maintainer reviews before anything is merged.",
+  },
+  {
+    category: "Feature",
+    label: "enhancement",
+    body: "The agent posts a plan as a comment and waits. Work starts only after a maintainer replies “ok”; any other reply keeps it pending.",
+  },
+  {
+    category: "Question",
+    label: "question",
+    body: "The agent replies with an answer based on this repo’s README, docs, and code, or says plainly if the repo can’t answer it.",
+  },
+];
+
+const BROKEN_PAGES = [
+  { href: "/broken/checkout/", title: "Checkout", body: "Cart, promo code, and an order button." },
+  { href: "/broken/dashboard/", title: "Dashboard", body: "Stats, a team card, and a reports table." },
+  { href: "/broken/settings/", title: "Settings", body: "A profile form with a notifications toggle." },
+];
+
 const HOW_TO_TEST = [
-  "Click “Send a test report” or the Feedback button in the corner.",
-  "Pick a category, write a short title, and add a screenshot if you like.",
-  "Open the repo’s Issues tab and check the new issue showed up with the right details.",
+  "Open a broken page below, spot something wrong, and click the Feedback button.",
+  "Pick Bug, Feature, or Question, write a short title, and add a screenshot if you like.",
+  "Find your issue in the Issues tab. If the triage loop is running, expect a reply within about 30 minutes.",
 ];
 
 function BranchIcon({ className }: { className?: string }) {
@@ -83,9 +103,9 @@ export default function Home() {
             Testing BugDrop with GitHub Issues
           </h1>
           <p className="mt-5 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-            This page exists to try the BugDrop widget end to end: send a report, see it land as a
-            GitHub issue in this repo, then check those issues with local scripts. Test reports
-            are welcome.
+            This page exists to try BugDrop end to end: send a report, see it land as a GitHub
+            issue in this repo, and let a local Claude Code agent triage it. Test reports are
+            welcome.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <ReportFeedbackButton>Send a test report</ReportFeedbackButton>
@@ -117,6 +137,25 @@ export default function Home() {
           </ul>
         </section>
 
+        <section className="border-t py-14" aria-labelledby="types-title">
+          <h2 id="types-title" className="text-xl font-semibold tracking-tight sm:text-2xl">
+            What happens to your report
+          </h2>
+          <ul className="mt-6 grid gap-3 md:grid-cols-3">
+            {REPORT_TYPES.map((type) => (
+              <li key={type.label} className="rounded-xl border bg-card/50 p-5">
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-medium">{type.category}</h3>
+                  <code className="rounded-md border px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                    {type.label}
+                  </code>
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{type.body}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <section className="border-t py-14" aria-labelledby="howto-title">
           <h2 id="howto-title" className="text-xl font-semibold tracking-tight sm:text-2xl">
             How to test it
@@ -129,6 +168,25 @@ export default function Home() {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className="border-t py-14" aria-labelledby="broken-title">
+          <h2 id="broken-title" className="text-xl font-semibold tracking-tight sm:text-2xl">
+            Broken pages to report
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Each page has several deliberate UI bugs. Report whatever you find.
+          </p>
+          <ul className="mt-6 grid gap-3 md:grid-cols-3">
+            {BROKEN_PAGES.map((page) => (
+              <li key={page.href}>
+                <Link href={page.href} className="block h-full rounded-xl border bg-card/50 p-5 transition-colors hover:border-primary/50 hover:bg-card">
+                  <p className="font-medium">{page.title} →</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{page.body}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section className="mb-16 rounded-xl border border-amber-400/20 bg-amber-400/[0.04] p-5 sm:p-6" aria-labelledby="notes-title">

@@ -1,4 +1,6 @@
-# Automation design (future, not active yet)
+# Automation design (original plan, not built)
+
+> **Superseded.** Triage currently runs locally through the Claude Code skill [`/triage-bugdrop`](../.claude/skills/triage-bugdrop/SKILL.md), scheduled by [`LOOP.md`](../LOOP.md). This document is the original design for a GitHub Actions version and is kept for reference. Differences: the skill picks issues by BugDrop category label (`bug`, `enhancement`, `question`) instead of `agent-ready`, answers questions, and gets feature approval through an "ok" reply on a posted plan.
 
 This repository plans an approval-gated issue-to-PR workflow that is scheduled and manually dispatchable.
 

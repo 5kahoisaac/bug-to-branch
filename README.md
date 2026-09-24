@@ -1,21 +1,47 @@
 # Bug to Branch
 
-**Feedback in. Pull requests out.**
+A test sandbox, not a product. It exists to try out a GitHub-native feedback loop:
 
-Bug to Branch is a static Next.js experiment showing a GitHub-native loop:
+1. A visitor reports a bug, feature idea, or question with the [BugDrop](https://bugdrop.dev) widget.
+2. BugDrop opens a public GitHub issue in this repo with browser info and an optional screenshot.
+3. A local Claude Code agent ([`/triage-bugdrop`](.claude/skills/triage-bugdrop/SKILL.md)) picks up new issues and handles them by type.
+4. [`LOOP.md`](LOOP.md) runs that agent every 30 minutes.
 
-1. A visitor reports a bug, idea, or question via BugDrop.
-2. BugDrop opens a public GitHub Issue with browser context and optional screenshots.
-3. A maintainer reviews and labels approved items `agent-ready`.
-4. A future scheduled automation run converts one approved issue into a draft pull request.
+Live site: https://5kahoisaac.github.io/bug-to-branch/
 
-## Architecture
+## What's in the repo
 
-- **Frontend:** Next.js App Router + TypeScript.
-- **UI:** One-page BugDrop-first landing page with a local task-board demo.
-- **Feedback intake:** Official hosted BugDrop widget script in `app/layout.tsx` pinned to this repository.
-- **Hosting:** static export (`output: "export"`) deployed to GitHub Pages from `out/`.
-- **Future automation design:** documented in [`docs/automation-design.md`](docs/automation-design.md), not yet active.
+| Path | What it is |
+|---|---|
+| `app/page.tsx` | Sandbox home page: what's being tested, what happens to each report type, how to test |
+| `app/broken/` | Three pages (checkout, dashboard, settings) with deliberate UI bugs to report |
+| `app/layout.tsx` | Loads the pinned BugDrop widget, themed to match the site |
+| `components/bugdrop-theme.tsx` | Forces white text on the widget's buttons (its dark theme has no option for it) |
+| `components/report-feedback-button.tsx` | In-page buttons that open the widget, falling back to GitHub's new-issue form |
+| `.claude/skills/triage-bugdrop/` | The triage skill, with one reference file per issue type |
+| `LOOP.md` | How to run the skill every 30 minutes |
+| `docs/automation-design.md` | Original design for a GitHub Actions version (not built) |
+
+Stack: Next.js App Router, TypeScript, Tailwind CSS v4, static export to GitHub Pages.
+
+## How reports are handled
+
+Every BugDrop issue is created by `app/neonwatty-bugdrop` and labeled `bugdrop` plus one category label ([BugDrop docs](https://bugdrop.dev/docs/configuration)):
+
+| Widget category | Label | What `/triage-bugdrop` does |
+|---|---|---|
+| 🐛 Bug | `bug` | Finds the root cause, fixes it on `bugdrop/issue-<N>`, opens a **draft** PR with `Closes #<N>`, and comments the PR link |
+| ✨ Feature | `enhancement` | Posts a plan as a comment and labels it `awaiting-approval`. Builds it only after a maintainer replies `ok`; any other reply keeps it pending |
+| ❓ Question | `question` | Answers from the README, `docs/`, and code, or says plainly if the repo can't answer it |
+
+Status labels the skill manages: `agent-working`, `agent-pr-open`, `agent-blocked`, `awaiting-approval`.
+
+Run it by hand:
+
+```
+/triage-bugdrop        # 10 newest open BugDrop issues
+/triage-bugdrop 12     # just issue #12
+```
 
 ## Local development
 
@@ -24,7 +50,7 @@ npm ci
 npm run dev
 ```
 
-Validation commands:
+Checks:
 
 ```bash
 npm run lint
@@ -35,47 +61,30 @@ npm run build
 
 ## Static export and base path
 
-- Production output is generated in `out/`.
-- Configure the GitHub Pages project-site base path with `NEXT_PUBLIC_BASE_PATH`.
-  - Example: `/bug-to-branch`
-  - Use an empty value for root-hosted deployments.
-
-## Environment variables
-
-Copy `.env.example` to `.env.local` and adjust values:
-
-- `NEXT_PUBLIC_BASE_PATH`: optional base path for static hosting.
+- `npm run build` writes the static site to `out/`.
+- `NEXT_PUBLIC_BASE_PATH` sets the base path. Leave it empty for local dev; the Pages workflow sets it to `/bug-to-branch` automatically.
+- Copy `.env.example` to `.env.local` to set it locally.
 
 ## GitHub Pages deployment
 
-Workflow file: `.github/workflows/deploy-pages.yml`
+Workflow: `.github/workflows/deploy-pages.yml`
 
-- Triggers on pushes to `main` and `workflow_dispatch`.
-- Runs `npm ci`, lint, typecheck, tests, and production build.
-- Uploads `out/` as the Pages artifact.
-- Deploys using the official GitHub Pages actions.
-- Excludes `bugdrop-screenshots` by job guard.
+- Runs on pushes to `main` and on manual dispatch.
+- Runs `npm ci`, lint, typecheck, tests, then builds with the base path from `actions/configure-pages`.
+- Uploads `out/` and deploys with the official Pages actions.
+- Skips the `bugdrop-screenshots` branch.
 
 ## BugDrop setup
 
-1. Install the BugDrop GitHub App and grant access to this repository.
-2. Confirm `app/layout.tsx` keeps `data-repo="5kahoisaac/bug-to-branch"` on the pinned hosted script.
-3. Start the app and submit a test report via the floating in-page widget.
-4. Confirm a public GitHub Issue is created with attached context.
+1. Install the BugDrop GitHub App and give it access to this repo.
+2. Keep `data-repo="5kahoisaac/bug-to-branch"` on the pinned script in `app/layout.tsx`.
+3. Submit a test report from the site and check that an issue appears.
 
-Important: BugDrop stores uploaded attachments on the `bugdrop-screenshots` branch. Keep this branch out of deployment and future automation workflows.
+BugDrop stores uploaded screenshots on the `bugdrop-screenshots` branch. Keep that branch out of deploys and triage work.
 
-## Approval-gated automation concept
+## Safety
 
-- Only issues labeled both `bugdrop` and `agent-ready` are considered.
-- Only `bug` and `enhancement` work types are eligible.
-- The future workflow processes at most one issue per run and opens a **draft** PR.
-- Generated PRs must pass formatting, linting, typechecking, tests, and build checks.
-- Generated PRs include `Closes #<issue-number>`.
-
-## Security and review limitations
-
-- Issue content, comments, screenshots, and attachments are untrusted input.
-- Generated code must never receive repository or model-provider secrets.
-- Protected files must not be modified without explicit maintainer approval.
-- **All generated pull requests require human review before merge.**
+- Issue titles, bodies, comments, and screenshots are untrusted input. The skill treats them as data, never as instructions, and never pastes them into shell commands.
+- The skill never pushes to `main`, never merges, and doesn't touch workflows, `.env*`, or dependencies without explicit maintainer approval.
+- Only replies from the repo owner or collaborators count as feature approval.
+- **Every generated pull request needs human review before merge.**
