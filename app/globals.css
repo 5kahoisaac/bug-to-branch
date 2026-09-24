@@ -1,29 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f5fb;
-  --surface: #ffffff;
-  --text: #121521;
-  --muted: #5f6680;
-  --border: #dce2f2;
-  --accent: #2b59ff;
-  --accent-contrast: #ffffff;
-  --danger: #d83d3d;
-  --shadow: 0 16px 44px rgba(12, 19, 40, 0.1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f1117;
-    --surface: #191c27;
-    --text: #f7f8fd;
-    --muted: #b4bddf;
-    --border: #2b3350;
-    --accent: #7d9cff;
-    --accent-contrast: #0d1223;
-    --danger: #ff8686;
-    --shadow: 0 20px 48px rgba(0, 0, 0, 0.38);
-  }
+  --bg: #080b17;
+  --bg-accent: radial-gradient(circle at top, #1b2550 0%, #080b17 50%, #05070f 100%);
+  --surface: rgba(16, 20, 36, 0.9);
+  --surface-strong: #141b32;
+  --text: #edf1ff;
+  --muted: #b8c2f1;
+  --border: #2a3152;
+  --accent: #7c8bff;
+  --accent-strong: #5a6aff;
+  --accent-contrast: #f6f8ff;
+  --danger: #ff9797;
+  --shadow: 0 22px 52px rgba(2, 6, 23, 0.4);
 }
 
 * {
@@ -32,7 +21,8 @@
 
 body {
   margin: 0;
-  background: var(--background);
+  min-height: 100vh;
+  background: var(--bg-accent);
   color: var(--text);
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
@@ -42,68 +32,163 @@ a {
 }
 
 .page-shell {
-  width: min(100%, 1100px);
+  width: min(1100px, 100%);
   margin: 0 auto;
-  padding: 2rem 1rem 3rem;
+  padding: clamp(1.2rem, 2vw, 2.2rem) 1rem 3rem;
   display: grid;
   gap: 1.25rem;
 }
 
 .hero,
 .workflow,
+.cta,
 .board {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 20px;
   box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
 }
 
 .hero {
-  padding: 1.4rem;
+  padding: clamp(1.2rem, 3vw, 2.25rem);
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--accent);
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
 }
 
 .hero h1 {
-  margin: 0.35rem 0;
-  font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+  margin: 0.7rem 0 0;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.1;
+  max-width: 16ch;
 }
 
-.hero p {
-  margin: 0.3rem 0;
+.hero-copy {
+  margin: 1rem 0 0;
   color: var(--muted);
+  max-width: 60ch;
+  line-height: 1.6;
 }
 
-.tagline {
-  font-weight: 650;
-  color: var(--accent);
+.hero-actions {
+  margin-top: 1.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
 }
 
-.notice {
-  margin-top: 0.8rem;
-  font-size: 0.95rem;
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.62rem 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
-.repo-link {
-  display: inline-block;
-  margin-top: 0.9rem;
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button-primary {
+  background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+  color: var(--accent-contrast);
+  box-shadow: 0 10px 24px rgba(90, 106, 255, 0.4);
+}
+
+.button-secondary {
+  border-color: var(--border);
+  color: var(--text);
+  background: rgba(9, 12, 24, 0.75);
+}
+
+.button:focus-visible,
+.repo-link:focus-visible,
+.task-form input:focus-visible,
+.task-form button:focus-visible,
+.filters button:focus-visible,
+.delete:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.value-pills {
+  list-style: none;
+  margin: 1.2rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.value-pills li {
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 0.5rem 0.9rem;
-  text-decoration: none;
+  padding: 0.35rem 0.7rem;
+  background: rgba(9, 12, 24, 0.72);
+  color: var(--muted);
+  font-size: 0.92rem;
 }
 
 .workflow {
-  padding: 1.1rem;
+  padding: 1rem;
   display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.workflow article {
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.workflow article:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  transform: translateY(-2px);
+}
+
+.step-index {
+  margin: 0;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.84rem;
+  letter-spacing: 0.03em;
 }
 
 .workflow article h2 {
-  margin: 0;
+  margin: 0.4rem 0 0;
+  font-size: 1.08rem;
 }
 
 .workflow article p {
-  margin: 0.4rem 0 0;
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.cta {
+  padding: 1rem 1.1rem;
+}
+
+.cta h2 {
+  margin: 0;
+}
+
+.cta p {
+  margin: 0.45rem 0 0;
   color: var(--muted);
 }
 
@@ -129,9 +214,9 @@ a {
 .task-form input {
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 0.64rem 0.75rem;
-  background: transparent;
+  background: rgba(9, 12, 24, 0.72);
   color: inherit;
 }
 
@@ -139,16 +224,16 @@ a {
 .filters button,
 .delete {
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: transparent;
+  border-radius: 12px;
+  background: rgba(9, 12, 24, 0.75);
   color: inherit;
   padding: 0.55rem 0.75rem;
   cursor: pointer;
 }
 
 .task-form button {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: linear-gradient(120deg, var(--accent), var(--accent-strong));
+  border-color: transparent;
   color: var(--accent-contrast);
 }
 
@@ -161,6 +246,7 @@ a {
   margin-top: 0.8rem;
   display: flex;
   gap: 0.45rem;
+  flex-wrap: wrap;
 }
 
 .filters button.is-active {
@@ -178,12 +264,13 @@ a {
 
 .task-list li {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 0.62rem 0.7rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.6rem;
+  background: rgba(9, 12, 24, 0.72);
 }
 
 .task-list label {
@@ -219,6 +306,18 @@ a {
 }
 
 @media (max-width: 640px) {
+  .page-shell {
+    padding-top: 0.9rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+
   .task-form {
     flex-direction: column;
   }

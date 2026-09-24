@@ -12,8 +12,8 @@ Bug to Branch is a static Next.js experiment showing a GitHub-native loop:
 ## Architecture
 
 - **Frontend:** Next.js App Router + TypeScript.
-- **UI:** One-page task board demo with localStorage persistence and filter controls.
-- **Feedback intake:** BugDrop widget loaded from `app/layout.tsx` when `NEXT_PUBLIC_BUGDROP_REPO` is configured.
+- **UI:** One-page BugDrop-first landing page with a local task-board demo.
+- **Feedback intake:** Official hosted BugDrop widget script in `app/layout.tsx` pinned to this repository.
 - **Hosting:** static export (`output: "export"`) deployed to GitHub Pages from `out/`.
 - **Future automation design:** documented in [`docs/automation-design.md`](docs/automation-design.md), not yet active.
 
@@ -44,10 +44,7 @@ npm run build
 
 Copy `.env.example` to `.env.local` and adjust values:
 
-- `NEXT_PUBLIC_BUGDROP_REPO`: target repository in `owner/repository` format.
 - `NEXT_PUBLIC_BASE_PATH`: optional base path for static hosting.
-
-If `NEXT_PUBLIC_BUGDROP_REPO` is missing in development, the widget is omitted and a console warning explains why.
 
 ## GitHub Pages deployment
 
@@ -62,8 +59,8 @@ Workflow file: `.github/workflows/deploy-pages.yml`
 ## BugDrop setup
 
 1. Install the BugDrop GitHub App and grant access to this repository.
-2. Set `NEXT_PUBLIC_BUGDROP_REPO` to this repository (`owner/repository`).
-3. Start the app and submit a test report via the in-page widget.
+2. Confirm `app/layout.tsx` keeps `data-repo="5kahoisaac/bug-to-branch"` on the pinned hosted script.
+3. Start the app and submit a test report via the floating in-page widget.
 4. Confirm a public GitHub Issue is created with attached context.
 
 Important: BugDrop stores uploaded attachments on the `bugdrop-screenshots` branch. Keep this branch out of deployment and future automation workflows.
