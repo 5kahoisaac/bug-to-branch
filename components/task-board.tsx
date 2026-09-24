@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   applyTaskFilter,
   createTask,
@@ -11,6 +15,7 @@ import {
   type TaskItem,
   validateTaskTitle,
 } from "@/lib/tasks";
+import { cn } from "@/lib/utils";
 
 const FILTER_LABELS: Record<TaskFilter, string> = {
   all: "All",
@@ -57,97 +62,117 @@ export function TaskBoard() {
   };
 
   return (
-    <section className="board" aria-labelledby="task-board-title">
-      <div className="board-head">
-        <h2 id="task-board-title">Try the demo task board</h2>
-        <p>Tasks stay in your browser using localStorage.</p>
-      </div>
+    <Card className="gap-0 border-border/80 bg-card/95" aria-labelledby="task-board-title">
+      <CardHeader className="space-y-2">
+        <CardTitle id="task-board-title" className="text-2xl tracking-tight">
+          Try the demo task board
+        </CardTitle>
+        <CardDescription>Tasks stay in your browser using localStorage.</CardDescription>
+      </CardHeader>
 
-      <form className="task-form" onSubmit={onAddTask} noValidate>
-        <label htmlFor="task-title" className="sr-only">
-          Add task
-        </label>
-        <input
-          id="task-title"
-          name="task-title"
-          value={draft}
-          onChange={(event) => {
-            setDraft(event.target.value);
-            if (error) {
-              setError(null);
-            }
-          }}
-          placeholder="Add a task"
-          maxLength={120}
-        />
-        <button type="submit">Add</button>
-      </form>
+      <CardContent className="space-y-5">
+        <form className="flex flex-col gap-3 sm:flex-row" onSubmit={onAddTask} noValidate>
+          <label htmlFor="task-title" className="sr-only">
+            Add task
+          </label>
+          <Input
+            id="task-title"
+            name="task-title"
+            value={draft}
+            onChange={(event) => {
+              setDraft(event.target.value);
+              if (error) {
+                setError(null);
+              }
+            }}
+            placeholder="Add a task"
+            maxLength={120}
+          />
+          <Button type="submit" className="sm:w-auto">
+            Add
+          </Button>
+        </form>
 
-      {error ? (
-        <p role="alert" className="form-error">
-          {error}
-        </p>
-      ) : null}
+        {error ? (
+          <p role="alert" className="text-sm font-medium text-destructive">
+            {error}
+          </p>
+        ) : null}
 
-      <div className="filters" role="tablist" aria-label="Task filters">
-        {(Object.keys(FILTER_LABELS) as TaskFilter[]).map((value) => (
-          <button
-            key={value}
-            type="button"
-            role="tab"
-            aria-selected={filter === value}
-            className={filter === value ? "is-active" : ""}
-            onClick={() => setFilter(value)}
-          >
-            {FILTER_LABELS[value]}
-          </button>
-        ))}
-      </div>
+        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Task filters">
+          {(Object.keys(FILTER_LABELS) as TaskFilter[]).map((value) => {
+            const isActive = filter === value;
 
-      {!mounted ? <p className="empty-state">Loading tasks…</p> : null}
+            return (
+              <Button
+                key={value}
+                type="button"
+                role="tab"
+                size="sm"
+                variant={isActive ? "default" : "outline"}
+                aria-selected={isActive}
+                onClick={() => setFilter(value)}
+              >
+                {FILTER_LABELS[value]}
+              </Button>
+            );
+          })}
+        </div>
 
-      {mounted && tasks.length === 0 ? (
-        <p className="empty-state">No tasks yet. Add one to begin.</p>
-      ) : null}
+        {!mounted ? <p className="text-sm text-muted-foreground">Loading tasks…</p> : null}
 
-      {mounted && tasks.length > 0 && visibleTasks.length === 0 ? (
-        <p className="empty-state">No tasks match this filter.</p>
-      ) : null}
+        {mounted && tasks.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No tasks yet. Add one to begin.</p>
+        ) : null}
 
-      <ul className="task-list" aria-live="polite">
-        {visibleTasks.map((task) => (
-          <li key={task.id}>
-            <label>
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => {
-                  setTasks((current) =>
-                    current.map((candidate) =>
-                      candidate.id === task.id
-                        ? { ...candidate, completed: !candidate.completed }
-                        : candidate,
-                    ),
-                  );
-                }}
-              />
-              <span className={task.completed ? "is-complete" : ""}>{task.title}</span>
-            </label>
-            <button
-              type="button"
-              className="delete"
-              onClick={() => {
-                setTasks((current) => current.filter((candidate) => candidate.id !== task.id));
-              }}
-              aria-label={`Delete ${task.title}`}
+        {mounted && tasks.length > 0 && visibleTasks.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No tasks match this filter.</p>
+        ) : null}
+
+        <ul className="grid gap-2" aria-live="polite">
+          {visibleTasks.map((task) => (
+            <li
+              key={task.id}
+              className="flex items-center justify-between gap-3 rounded-lg border border-border/80 bg-secondary/30 px-3 py-2"
             >
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
+              <label className="flex min-w-0 items-center gap-2.5 text-sm">
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => {
+                    setTasks((current) =>
+                      current.map((candidate) =>
+                        candidate.id === task.id
+                          ? { ...candidate, completed: !candidate.completed }
+                          : candidate,
+                      ),
+                    );
+                  }}
+                />
+                <span className={cn("truncate", task.completed && "text-muted-foreground line-through")}>
+                  {task.title}
+                </span>
+              </label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => {
+                  setTasks((current) => current.filter((candidate) => candidate.id !== task.id));
+                }}
+                aria-label={`Delete ${task.title}`}
+              >
+                Delete
+              </Button>
+            </li>
+          ))}
+        </ul>
 
-      <p className="count">{activeCount} active task(s).</p>
-    </section>
+        <Badge variant="outline" className="w-fit px-2.5 py-1 text-xs text-muted-foreground">
+          {activeCount} active task(s).
+        </Badge>
+      </CardContent>
+    </Card>
   );
 }
