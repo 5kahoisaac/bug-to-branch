@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+
+import { BugDropTheme } from "@/components/bugdrop-theme";
 
 import "./globals.css";
 
 const BUGDROP_SCRIPT_SRC = "https://bugdrop.neonwatty.workers.dev/widget.v1.56.4.js";
 const BUGDROP_REPO = "5kahoisaac/bug-to-branch";
 
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+
 export const metadata: Metadata = {
   title: "Bug to Branch",
-  description: "Feedback in. Pull requests out.",
+  description: "Sandbox for testing BugDrop reports as GitHub issues.",
 };
 
 export default function RootLayout({
@@ -16,25 +22,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full bg-background text-foreground">
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="min-h-full bg-background font-sans text-foreground">
         {children}
+        <BugDropTheme />
+        {/* Widget theme mirrors the tokens in globals.css. */}
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script
           src={BUGDROP_SCRIPT_SRC}
           data-repo={BUGDROP_REPO}
           data-theme="dark"
           data-position="bottom-right"
-          data-label="BugDrop feedback"
-          data-welcome="Spot a bug or idea? Share it and we will turn it into a GitHub issue."
+          data-label="Feedback"
+          data-welcome="false"
           data-locale="en"
-          data-inherit-font="true"
-          data-radius="999"
-          data-accent="#4f46e5"
-          data-background="#111827"
-          data-text="#eef2ff"
-          data-border="#312e81"
-          data-shadow="0 18px 40px rgba(15, 23, 42, 0.45)"
+          data-font="inherit"
+          data-radius="10"
+          data-border-width="1"
+          data-color="#6366f1"
+          data-bg="#111113"
+          data-text="#fafafa"
+          data-border-color="#27272a"
+          data-shadow="soft"
         />
       </body>
     </html>

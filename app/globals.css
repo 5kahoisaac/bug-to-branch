@@ -1,24 +1,27 @@
 @import "tailwindcss";
 
+/* Keep in sync with the BugDrop data-* colors in app/layout.tsx. */
 :root {
-  --background: 224 36% 9%;
-  --foreground: 222 32% 96%;
-  --card: 225 34% 13%;
-  --card-foreground: 222 32% 96%;
-  --primary: 244 78% 61%;
+  --background: 240 10% 4%;
+  --foreground: 0 0% 98%;
+  --card: 240 6% 7%;
+  --card-foreground: 0 0% 98%;
+  --primary: 239 84% 67%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 225 28% 20%;
-  --secondary-foreground: 223 34% 93%;
-  --muted-foreground: 226 18% 72%;
-  --accent: 225 26% 24%;
-  --accent-foreground: 223 34% 94%;
+  --secondary: 240 5% 11%;
+  --secondary-foreground: 0 0% 92%;
+  --muted-foreground: 240 5% 65%;
+  --accent: 240 5% 13%;
+  --accent-foreground: 0 0% 98%;
   --destructive: 0 84% 67%;
-  --border: 228 26% 27%;
-  --input: 228 26% 30%;
-  --ring: 244 78% 61%;
+  --border: 240 4% 16%;
+  --input: 240 4% 20%;
+  --ring: 239 84% 67%;
 }
 
 @theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -40,56 +43,30 @@
   border-color: hsl(var(--border));
 }
 
+html {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top, hsl(232 55% 23% / 0.38), transparent 50%),
-    hsl(var(--background));
+  background: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+::selection {
+  background: hsl(var(--primary) / 0.35);
 }
 
 a {
   color: inherit;
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-:is(#bugdrop-launcher, [data-bugdrop-launcher], .bugdrop-launcher, [class*="bugdrop-trigger"]) {
-  border-radius: 9999px !important;
-  border: 1px solid hsl(244 59% 44%) !important;
-  background: linear-gradient(135deg, hsl(244 78% 61%), hsl(239 70% 56%)) !important;
-  box-shadow: 0 14px 32px hsl(240 73% 45% / 0.4) !important;
-  color: hsl(var(--primary-foreground)) !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.01em;
-  transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease !important;
-}
-
-:is(#bugdrop-launcher, [data-bugdrop-launcher], .bugdrop-launcher, [class*="bugdrop-trigger"]):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 18px 38px hsl(240 73% 45% / 0.5) !important;
-  filter: brightness(1.03);
-}
-
-:is(#bugdrop-launcher, [data-bugdrop-launcher], .bugdrop-launcher, [class*="bugdrop-trigger"]):active {
-  transform: translateY(0);
-  box-shadow: 0 10px 22px hsl(240 73% 45% / 0.45) !important;
-}
-
-:is(#bugdrop-launcher, [data-bugdrop-launcher], .bugdrop-launcher, [class*="bugdrop-trigger"]):focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px hsl(var(--background)),
-    0 0 0 4px hsl(var(--ring)) !important;
+/* Faint grid behind the hero, faded out toward the edges. */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, hsl(var(--border) / 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.5) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 30%, transparent 75%);
 }
