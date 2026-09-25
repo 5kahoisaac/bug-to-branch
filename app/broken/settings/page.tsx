@@ -5,16 +5,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const EMAIL_PATTERN = /^[a-z]+@[a-z]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const JOINED_ON = "24/09/2026";
+const INITIAL = { name: "Sandbox Tester", email: "tester@example.com", notifications: true };
 
 export default function SettingsPage() {
-  const [name, setName] = useState("Sandbox Tester");
-  const [email, setEmail] = useState("tester@example.com");
-  const [notifications, setNotifications] = useState(true);
-  const [isDirty] = useState(false);
+  const [name, setName] = useState(INITIAL.name);
+  const [email, setEmail] = useState(INITIAL.email);
+  const [notifications, setNotifications] = useState(INITIAL.notifications);
 
   const isEmailValid = EMAIL_PATTERN.test(email);
+  const isDirty =
+    name !== INITIAL.name || email !== INITIAL.email || notifications !== INITIAL.notifications;
 
   return (
     <div>
@@ -48,7 +50,7 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <Button type="submit" disabled={!isDirty}>
+        <Button type="submit" disabled={!isDirty || !isEmailValid}>
           Save changes
         </Button>
       </form>
