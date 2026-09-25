@@ -16,8 +16,12 @@ const ROWS = [
   { id: 103, title: "Dark mode toggle missing", reporter: "carol@example.com", status: "closed", updated: "2026-09-22" },
 ];
 
-function percentChange(current: number, previous?: number) {
-  return Math.round(((current - (previous as number)) / (previous as number)) * 100);
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
+function formatChange(current: number, previous?: number) {
+  if (!previous) return null;
+  const change = Math.round(((current - previous) / previous) * 100);
+  return `${change > 0 ? "+" : ""}${change}%`;
 }
 
 export default function DashboardPage() {
@@ -34,7 +38,7 @@ export default function DashboardPage() {
 
       <div className="mt-8 flex items-center gap-4 rounded-xl border bg-card/50 p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/team-avatar.png" alt="Team avatar" className="size-12 rounded-full" />
+        <img src={`${BASE_PATH}/images/team-avatar.svg`} alt="Team avatar" className="size-12 rounded-full" />
         <div>
           <p className="font-medium">Sandbox team</p>
           <p className="text-sm text-zinc-800">Last synced 3 minutes ago · 4 members online</p>
@@ -46,7 +50,9 @@ export default function DashboardPage() {
           <div key={stat.label} className="rounded-xl border bg-card/50 p-5">
             <p className="text-sm text-muted-foreground">{stat.label}</p>
             <p className="mt-2 text-3xl font-semibold">{stat.current}</p>
-            <p className="mt-1 text-sm text-emerald-400">+{percentChange(stat.current, stat.previous)}%</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {formatChange(stat.current, stat.previous) ?? "No prior data"}
+            </p>
           </div>
         ))}
       </div>
