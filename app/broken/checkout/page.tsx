@@ -16,11 +16,13 @@ export default function CheckoutPage() {
   const [promo, setPromo] = useState("");
   const [promoMessage, setPromoMessage] = useState("");
 
-  const subtotal = items.reduce((sum, item) => sum + item.price, "");
+  const subtotal = items.reduce((sum, item) => sum + Number(item.price) * item.qty, 0).toFixed(2);
 
   function changeQty(id: number, delta: number) {
     setItems((current) =>
-      current.map((item) => (item.id === id ? { ...item, qty: item.qty + delta } : item)),
+      current
+        .map((item) => (item.id === id ? { ...item, qty: item.qty + delta } : item))
+        .filter((item) => item.qty >= 1),
     );
   }
 
