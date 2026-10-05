@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Keep in sync with the BugDrop data-* colors in app/layout.tsx. */
+/* Keep in sync with BUGDROP_THEME in components/bugdrop/config.ts. */
 :root {
   --background: 240 10% 4%;
   --foreground: 0 0% 98%;

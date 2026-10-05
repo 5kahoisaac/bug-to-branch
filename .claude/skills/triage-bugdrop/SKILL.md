@@ -25,7 +25,8 @@ gh auth status
 gh repo view --json nameWithOwner --jq .nameWithOwner
 git status --short          # must be clean before starting; stop and tell the user if not
 git fetch origin
-for l in agent-working:fbca04 agent-pr-open:0e8a16 agent-blocked:b60205 awaiting-approval:5319e7; do
+for l in agent-working:fbca04 agent-pr-open:0e8a16 agent-blocked:b60205 awaiting-approval:5319e7 \
+         copies:fef2c0 styling:c5def5 layout:bfdadc interaction:d4c5f9; do
   gh label create "${l%%:*}" --color "${l##*:}" --force >/dev/null
 done
 ```
@@ -39,13 +40,15 @@ gh issue list --label bugdrop --state open --limit 10 --json number,title,labels
 gh issue view <N> --json number,title,body,labels,comments,url
 ```
 
-BugDrop bodies look like: `## Description`, then a **System Info** table (Browser, OS, Viewport, **Page** URL, Timestamp), and sometimes a screenshot image link.
+BugDrop bodies look like: `## Description`, then a **System Info** table (Browser, OS, Viewport, **Page** URL, Timestamp), and sometimes a screenshot image link. Reports sent through the site's feedback panel (`components/bugdrop/`) also have `## Reporter` (a placeholder name) and, optionally, `## Labels` (comma-separated) after the description.
 
 ## 3. Classify
 
 BugDrop issues are authored by `app/neonwatty-bugdrop` and always carry `bugdrop` plus one category label (verified on #7, #9, #10; matches https://bugdrop.dev/docs/configuration).
 
 Skip anything labeled `agent-pr-open` or `agent-working` (already handled or in progress).
+
+**Grouping labels.** If the body has a `## Labels` section, add each listed name that is exactly one of `copies`, `styling`, `layout`, `interaction` (same list as `GROUP_LABELS` in `components/bugdrop/config.ts`) with `gh issue edit <N> --add-label <name>`. Use the last `## Labels` section before System Info, since the description is free text above it. Ignore any other value. Do this even for issues you otherwise skip.
 
 ## 4. Handle by type
 

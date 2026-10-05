@@ -15,9 +15,8 @@ Live site: https://5kahoisaac.github.io/bug-to-branch/
 |---|---|
 | `app/page.tsx` | Sandbox home page: what's being tested, what happens to each report type, how to test |
 | `app/broken/` | Three pages (checkout, dashboard, settings) with deliberate UI bugs to report |
-| `app/layout.tsx` | Loads the pinned BugDrop widget, themed to match the site |
-| `components/bugdrop-theme.tsx` | Forces white text on the widget's buttons (its dark theme has no option for it) |
-| `components/report-feedback-button.tsx` | In-page buttons that open the widget, falling back to GitHub's new-issue form |
+| `app/layout.tsx` | Renders `<BugDrop />` once at the end of `<body>` |
+| `components/bugdrop/` | Everything BugDrop: pinned script, Feedback panel (type, reporter, labels), custom flows, theme patches. Self-contained; see its [README](components/bugdrop/README.md) to reuse it |
 | `.claude/skills/triage-bugdrop/` | The triage skill, with one reference file per issue type |
 | `LOOP.md` | How to run the skill every 30 minutes |
 | `docs/automation-design.md` | Original design for a GitHub Actions version (not built) |
@@ -35,6 +34,12 @@ Every BugDrop issue is created by `app/neonwatty-bugdrop` and labeled `bugdrop` 
 | ❓ Question | `question` | Answers from the README, `docs/`, and code, or says plainly if the repo can't answer it |
 
 Status labels the skill manages: `agent-working`, `agent-pr-open`, `agent-blocked`, `awaiting-approval`.
+
+### Reporter and grouping labels
+
+The Feedback panel asks who is reporting (placeholder names: John Doe, Jane Smith, Alex Chen) and offers optional grouping labels: `copies` (wording), `styling` (CSS), `layout` (alignment/overflow), `interaction` (controls that misbehave). Both are passed to a [BugDrop custom flow](https://bugdrop.dev/docs/custom-flows) and written into the issue as `## Reporter` and `## Labels` sections.
+
+BugDrop can't set arbitrary labels per report, so `/triage-bugdrop` reads `## Labels` and applies the ones on its allowlist. Until the next triage run, the choice is only in the issue body.
 
 Run it by hand:
 
@@ -77,7 +82,7 @@ Workflow: `.github/workflows/deploy-pages.yml`
 ## BugDrop setup
 
 1. Install the BugDrop GitHub App and give it access to this repo.
-2. Keep `data-repo="5kahoisaac/bug-to-branch"` on the pinned script in `app/layout.tsx`.
+2. Keep `BUGDROP_REPO = "5kahoisaac/bug-to-branch"` in `components/bugdrop/config.ts`.
 3. Submit a test report from the site and check that an issue appears.
 
 BugDrop stores uploaded screenshots on the `bugdrop-screenshots` branch. Keep that branch out of deploys and triage work.
