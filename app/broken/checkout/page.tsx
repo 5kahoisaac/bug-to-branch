@@ -11,12 +11,17 @@ const INITIAL_ITEMS = [
   { id: 3, name: "Desk mat", price: "19.99", qty: 1 },
 ];
 
+const PROMO_CODE = "SAVE10";
+const PROMO_DISCOUNT = 0.1;
+
 export default function CheckoutPage() {
   const [items, setItems] = useState(INITIAL_ITEMS);
   const [promo, setPromo] = useState("");
   const [promoMessage, setPromoMessage] = useState("");
+  const [isPromoApplied, setIsPromoApplied] = useState(false);
 
-  const subtotal = items.reduce((sum, item) => sum + Number(item.price) * item.qty, 0).toFixed(2);
+  const itemsTotal = items.reduce((sum, item) => sum + Number(item.price) * item.qty, 0);
+  const subtotal = (isPromoApplied ? itemsTotal * (1 - PROMO_DISCOUNT) : itemsTotal).toFixed(2);
 
   function changeQty(id: number, delta: number) {
     setItems((current) =>
@@ -27,7 +32,9 @@ export default function CheckoutPage() {
   }
 
   function applyPromo() {
-    setPromoMessage(promo.toUpperCase() === "save10" ? "10% off applied" : "Invalid code");
+    const isValid = promo.trim().toUpperCase() === PROMO_CODE;
+    setIsPromoApplied(isValid);
+    setPromoMessage(isValid ? "10% off applied" : "Invalid code");
   }
 
   return (
@@ -55,7 +62,11 @@ export default function CheckoutPage() {
         <Input placeholder="Promo code" value={promo} onChange={(e) => setPromo(e.target.value)} />
         <Button variant="secondary" onClick={applyPromo}>Apply</Button>
       </div>
-      {promoMessage && <p className="mt-2 text-sm text-destructive">{promoMessage}</p>}
+      {promoMessage && (
+        <p className={`mt-2 text-sm ${isPromoApplied ? "text-muted-foreground" : "text-destructive"}`}>
+          {promoMessage}
+        </p>
+      )}
 
       <div className="mt-8 flex items-center justify-between rounded-xl border bg-card/50 p-4">
         <span className="text-muted-foreground">Subtotal</span>
