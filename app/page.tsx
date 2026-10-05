@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { ReportFeedbackButton } from "@/components/report-feedback-button";
+import { FeedbackLink } from "@/components/bugdrop";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -108,7 +108,9 @@ export default function Home() {
             welcome.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <ReportFeedbackButton>Send a test report</ReportFeedbackButton>
+            <Button asChild size="lg">
+              <FeedbackLink>Send a test report</FeedbackLink>
+            </Button>
             <Button asChild variant="outline" size="lg">
               <a href={ISSUES_URL} target="_blank" rel="noopener noreferrer">
                 View issues
